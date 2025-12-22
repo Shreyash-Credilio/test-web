@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Scheme Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #444;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .link-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .link-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+        }
+        .link-item.payment {
+            border-left-color: #28a745;
+        }
+        .link-item.standard {
+            border-left-color: #007bff;
+        }
+        .link-item.non-standard {
+            border-left-color: #ffc107;
+        }
+        .link-item a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .link-item a:hover {
+            text-decoration: underline;
+        }
+        .link-description {
+            color: #666;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .scheme-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: monospace;
+            margin-right: 10px;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #0c5c9c;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Scheme Test Page</h1>
+    <p class="subtitle">Testing various URL schemes and payment intents</p>
+
+    <div class="info-box">
+        <h3>About This Page</h3>
+        <p>This test page demonstrates different URL schemes including:</p>
+        <ul>
+            <li><strong>Standard schemes:</strong> <code>http, https, file, chrome, data, javascript, about, copy</code></li>
+            <li><strong>Payment intents:</strong> UPI payment links that should trigger payment applications</li>
+            <li><strong>Non-standard schemes:</strong> Custom and other protocol handlers</li>
+        </ul>
+    </div>
+
+    <!-- Payment Intent Links -->
+    <div class="section">
+        <h2>Payment Intent Links (UPI)</h2>
+        <div class="link-container">
+            <div class="link-item payment">
+                <span class="scheme-badge">upi:</span>
+                <a href="upi://pay?pa=test@upi&pn=Test%20Merchant&am=100&cu=INR">UPI Payment Link - ₹100</a>
+                <span class="link-description">Should trigger UPI app with payment intent for ₹100</span>
+            </div>
+            <div class="link-item payment">
+                <span class="scheme-badge">upi:</span>
+                <a href="upi://pay?pa=merchant@paytm&pn=Sample%20Store&am=50.50&cu=INR&tn=Test%20Transaction">UPI Payment Link - ₹50.50</a>
+                <span class="link-description">Should trigger UPI app with payment intent for ₹50.50</span>
+            </div>
+            <div class="link-item payment">
+                <span class="scheme-badge">upi:</span>
+                <a href="upi://pay?pa=example@okaxis&pn=Example%20Payment&am=250&cu=INR&tn=Order%23123">UPI Payment Link - ₹250</a>
+                <span class="link-description">Should trigger UPI app with payment details</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Standard Schemes (from the specified list) -->
+    <div class="section">
+        <h2>Standard Schemes (Allowed List)</h2>
+        <p>These schemes fall under the standard allowed list: <code>http, https, file, chrome, data, javascript, about, copy</code></p>
+        <div class="link-container">
+            <div class="link-item standard">
+                <span class="scheme-badge">http:</span>
+                <a href="http://example.com">HTTP Link</a>
+                <span class="link-description">Standard HTTP protocol</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">https:</span>
+                <a href="https://www.google.com">HTTPS Link</a>
+                <span class="link-description">Secure HTTPS protocol</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">file:</span>
+                <a href="file:///home/user/document.txt">File Link</a>
+                <span class="link-description">Local file protocol (may not work in browser for security reasons)</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">chrome:</span>
+                <a href="chrome://settings">Chrome Settings</a>
+                <span class="link-description">Chrome internal page (works only in Chrome)</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">data:</span>
+                <a href="data:text/html,<h1>Hello from data URI!</h1>">Data URI</a>
+                <span class="link-description">Data URI with inline HTML</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">javascript:</span>
+                <a href="javascript:alert('Hello from JavaScript!');">JavaScript URI</a>
+                <span class="link-description">JavaScript protocol (triggers alert)</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">about:</span>
+                <a href="about:blank">About Blank</a>
+                <span class="link-description">About page (opens blank page)</span>
+            </div>
+            <div class="link-item standard">
+                <span class="scheme-badge">copy:</span>
+                <a href="copy:text">Copy Scheme</a>
+                <span class="link-description">Copy protocol (may not be widely supported)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Non-Standard Schemes -->
+    <div class="section">
+        <h2>Non-Standard Schemes (Not in Allowed List)</h2>
+        <p>These schemes do NOT fall under the standard allowed list</p>
+        <div class="link-container">
+            <div class="link-item non-standard">
+                <span class="scheme-badge">mailto:</span>
+                <a href="mailto:test@example.com">Email Link</a>
+                <span class="link-description">Mail protocol (opens email client)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">tel:</span>
+                <a href="tel:+1234567890">Phone Link</a>
+                <span class="link-description">Telephone protocol (triggers dialer on mobile)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">sms:</span>
+                <a href="sms:+1234567890">SMS Link</a>
+                <span class="link-description">SMS protocol (opens messaging app)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">ftp:</span>
+                <a href="ftp://ftp.example.com">FTP Link</a>
+                <span class="link-description">File Transfer Protocol</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">whatsapp:</span>
+                <a href="whatsapp://send?text=Hello">WhatsApp Link</a>
+                <span class="link-description">WhatsApp protocol (opens WhatsApp if installed)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">slack:</span>
+                <a href="slack://open">Slack Link</a>
+                <span class="link-description">Slack protocol (opens Slack if installed)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">custom:</span>
+                <a href="custom://myapp/action">Custom Scheme</a>
+                <span class="link-description">Custom application protocol</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">intent:</span>
+                <a href="intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;end">Android Intent</a>
+                <span class="link-description">Android Intent URI (works only on Android)</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">market:</span>
+                <a href="market://details?id=com.example.app">Play Store Link</a>
+                <span class="link-description">Android Market/Play Store protocol</span>
+            </div>
+            <div class="link-item non-standard">
+                <span class="scheme-badge">tg:</span>
+                <a href="tg://msg?to=@username">Telegram Link</a>
+                <span class="link-description">Telegram protocol (opens Telegram if installed)</span>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; padding: 20px; color: #666; margin-top: 30px;">
+        <p>Test page for URL scheme validation and payment intent handling</p>
+        <p><small>Created for testing purposes - Click links to test behavior on different platforms</small></p>
+    </footer>
+</body>
+</html>
