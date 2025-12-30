@@ -9,41 +9,64 @@
             font-family: Arial, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
             background-color: #f5f5f5;
         }
         h1 {
             color: #333;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .section {
             background-color: white;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .section h2 {
             color: #444;
             border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
             margin-top: 0;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section h2:hover {
+            opacity: 0.8;
+        }
+        .collapse-icon {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .section-content.collapsed {
+            max-height: 0 !important;
         }
         .link-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         .link-item {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 8px;
             background-color: #f8f9fa;
             border-radius: 4px;
             border-left: 4px solid #007bff;
@@ -83,8 +106,8 @@
         .info-box {
             background-color: #e7f3ff;
             border-left: 4px solid #2196F3;
-            padding: 15px;
-            margin-bottom: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
             border-radius: 4px;
         }
         .info-box h3 {
@@ -96,6 +119,30 @@
             padding: 2px 6px;
             border-radius: 3px;
             font-family: monospace;
+        }
+        
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .section {
+                padding: 12px;
+            }
+            .link-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .link-description {
+                margin-left: 0 !important;
+            }
+            .subtitle {
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -113,11 +160,41 @@
         </ul>
     </div>
 
+    <!-- Custom URI Invoker -->
+    <div class="section">
+        <h2 onclick="toggleSection(this)">
+            Custom URI Invoker
+            <span class="collapse-icon">▼</span>
+        </h2>
+        <div class="section-content">
+            <p>Enter any URI below to test custom protocol handlers or deep links:</p>
+            <div style="margin-top: 15px;">
+                <input 
+                    type="text" 
+                    id="customUri" 
+                    placeholder="Enter URI (e.g., upi://pay?pa=test@upi&am=100&cu=INR)" 
+                    style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"
+                >
+                <button 
+                    onclick="invokeCustomUri()" 
+                    style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 10px;"
+                >
+                    Invoke URI
+                </button>
+            </div>
+            <div id="uriStatus" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
+        </div>
+    </div>
+
     <!-- Payment Intent Links -->
     <div class="section">
-        <h2>Payment Intent Links (UPI)</h2>
-        <div class="link-container">
-            <div class="link-item payment">
+        <h2 onclick="toggleSection(this)">
+            Payment Intent Links (UPI)
+            <span class="collapse-icon collapsed">▼</span>
+        </h2>
+        <div class="section-content collapsed">
+            <div class="link-container">
+                <div class="link-item payment">
                 <span class="scheme-badge">upi:</span>
                 <a href="upi://pay?pa=test@upi&pn=Test%20Merchant&am=100&cu=INR">UPI Payment Link - ₹100</a>
                 <span class="link-description">Should trigger UPI app with payment intent for ₹100</span>
@@ -207,41 +284,25 @@
                 <a href="imobile://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">iMobile Payment - ₹5</a>
                 <span class="link-description">Should trigger ICICI iMobile with payment intent for ₹5</span>
             </div>
+            </div>
         </div>
-    </div>
-
-    <!-- Custom URI Invoker -->
-    <div class="section">
-        <h2>Custom URI Invoker</h2>
-        <p>Enter any URI below to test custom protocol handlers or deep links:</p>
-        <div style="margin-top: 15px;">
-            <input 
-                type="text" 
-                id="customUri" 
-                placeholder="Enter URI (e.g., upi://pay?pa=test@upi&am=100&cu=INR)" 
-                style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"
-            >
-            <button 
-                onclick="invokeCustomUri()" 
-                style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 10px;"
-            >
-                Invoke URI
-            </button>
-        </div>
-        <div id="uriStatus" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
     </div>
 
     <!-- Standard Schemes (from the specified list) -->
     <div class="section">
-        <h2>Standard Schemes (Allowed List)</h2>
-        <p>These schemes fall under the standard allowed list: <code>http, https, file, chrome, data, javascript, about, copy</code></p>
-        <div class="link-container">
-            <div class="link-item standard">
-                <span class="scheme-badge">http:</span>
+        <h2 onclick="toggleSection(this)">
+            Standard Schemes (Allowed List)
+            <span class="collapse-icon collapsed">▼</span>
+        </h2>
+        <div class="section-content collapsed">
+            <p>These schemes fall under the standard allowed list: <code>http, https, file, chrome, data, javascript, about, copy</code></p>
+            <div class="link-container">
+                <div class="link-item standard">
+                    <span class="scheme-badge">http:</span>
                 <a href="http://example.com">HTTP Link</a>
                 <span class="link-description">Standard HTTP protocol</span>
-            </div>
-            <div class="link-item standard">
+                </div>
+                <div class="link-item standard">
                 <span class="scheme-badge">https:</span>
                 <a href="https://www.google.com">HTTPS Link</a>
                 <span class="link-description">Secure HTTPS protocol</span>
@@ -276,14 +337,19 @@
                 <a href="copy:text">Copy Scheme</a>
                 <span class="link-description">Copy protocol (may not be widely supported)</span>
             </div>
+            </div>
         </div>
     </div>
 
     <!-- Non-Standard Schemes -->
     <div class="section">
-        <h2>Non-Standard Schemes (Not in Allowed List)</h2>
-        <p>These schemes do NOT fall under the standard allowed list</p>
-        <div class="link-container">
+        <h2 onclick="toggleSection(this)">
+            Non-Standard Schemes (Not in Allowed List)
+            <span class="collapse-icon collapsed">▼</span>
+        </h2>
+        <div class="section-content collapsed">
+            <p>These schemes do NOT fall under the standard allowed list</p>
+            <div class="link-container">
             <div class="link-item non-standard">
                 <span class="scheme-badge">mailto:</span>
                 <a href="mailto:test@example.com">Email Link</a>
@@ -333,6 +399,7 @@
                 <span class="scheme-badge">tg:</span>
                 <a href="tg://msg?to=@username">Telegram Link</a>
                 <span class="link-description">Telegram protocol (opens Telegram if installed)</span>
+            </div>
             </div>
         </div>
     </div>
@@ -390,6 +457,35 @@
             if (event.key === 'Enter') {
                 invokeCustomUri();
             }
+        });
+        
+        // Toggle section collapse/expand
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.collapse-icon');
+            
+            if (content.classList.contains('collapsed')) {
+                // Expand
+                content.classList.remove('collapsed');
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.classList.remove('collapsed');
+            } else {
+                // Collapse
+                content.classList.add('collapsed');
+                content.style.maxHeight = '0';
+                icon.classList.add('collapsed');
+            }
+        }
+        
+        // Initialize sections on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section-content');
+            sections.forEach(function(section) {
+                if (!section.classList.contains('collapsed')) {
+                    // Set max-height for expanded sections
+                    section.style.maxHeight = section.scrollHeight + 'px';
+                }
+            });
         });
     </script>
 </body>
