@@ -2,6 +2,8 @@
 
 A test page for validating URL schemes and payment intents.
 
+https://shreyash-credilio.github.io/test-web/
+
 ## Overview
 
 This repository contains a test page that demonstrates various URL schemes including:
