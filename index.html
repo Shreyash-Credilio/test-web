@@ -54,9 +54,11 @@
         .section-content {
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            padding-bottom: 5px;
         }
         .section-content.collapsed {
             max-height: 0 !important;
+            padding-bottom: 0;
         }
         .link-container {
             display: flex;
@@ -467,7 +469,8 @@
             if (content.classList.contains('collapsed')) {
                 // Expand
                 content.classList.remove('collapsed');
-                content.style.maxHeight = content.scrollHeight + 'px';
+                // Add buffer to prevent clipping
+                content.style.maxHeight = (content.scrollHeight + 20) + 'px';
                 icon.classList.remove('collapsed');
             } else {
                 // Collapse
@@ -482,8 +485,8 @@
             const sections = document.querySelectorAll('.section-content');
             sections.forEach(function(section) {
                 if (!section.classList.contains('collapsed')) {
-                    // Set max-height for expanded sections
-                    section.style.maxHeight = section.scrollHeight + 'px';
+                    // Set max-height for expanded sections with buffer
+                    section.style.maxHeight = (section.scrollHeight + 20) + 'px';
                 }
             });
         });
