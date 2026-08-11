@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permission Testing</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #0c5c9c;
+        }
+        .info-box p {
+            margin: 4px 0;
+            font-size: 14px;
+        }
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .permission-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+        }
+        .permission-card .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .permission-card .icon {
+            font-size: 28px;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .permission-card h3 {
+            color: #333;
+            font-size: 16px;
+            margin: 0;
+        }
+        .permission-card .api-name {
+            color: #888;
+            font-size: 11px;
+            font-family: monospace;
+            display: block;
+            margin-top: 2px;
+        }
+        .permission-card .card-desc {
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .permission-card .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .permission-card button {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.15s;
+        }
+        .btn-request {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-request:hover {
+            background-color: #0069d9;
+        }
+        .btn-release {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-release:hover {
+            background-color: #5a6268;
+        }
+        .btn-clear {
+            background-color: transparent;
+            color: #6c757d;
+            border: 1px solid #ddd !important;
+            padding: 7px 14px;
+            font-size: 12px;
+        }
+        .btn-clear:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        .status-granted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-denied {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-error {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-unsupported {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+        .status-prompt {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .result-text {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+            max-height: 60px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 6px 8px;
+            border-radius: 4px;
+            display: none;
+        }
+        .result-text.visible {
+            display: block;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+        @media (max-width: 768px) {
+            .permission-grid {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Back to Home</a>
+<h1>Permission Testing</h1>
+<p class="subtitle">Test how the WebView handles browser permission requests</p>
+
+<div class="info-box">
+    <h3>About This Page</h3>
+    <p>Each card below invokes a browser API that triggers a permission prompt. Use this to verify that the WebView correctly surfaces, grants, denies, and persists these permission flows. Some APIs require a secure context (HTTPS/localhost) and a user gesture.</p>
+</div>
+
+<div class="permission-grid">
+
+    <!-- Geolocation -->
+    <div class="permission-card" id="card-geolocation">
+        <div class="card-header">
+            <div class="icon">&#127758;</div>
+            <div>
+                <h3>Geolocation</h3>
+                <span class="api-name">navigator.geolocation</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests the device's current geographic location.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestGeolocation()">Request Location</button>
+            <button class="btn-clear" onclick="clearStatus('geolocation')">Clear</button>
+        </div>
+        <span id="status-geolocation"></span>
+        <div class="result-text" id="result-geolocation"></div>
+    </div>
+
+    <!-- Camera -->
+    <div class="permission-card" id="card-camera">
+        <div class="card-header">
+            <div class="icon">&#128247;</div>
+            <div>
+                <h3>Camera</h3>
+                <span class="api-name">getUserMedia({ video: true })</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests access to the device camera.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestCamera()">Request Camera</button>
+            <button class="btn-release" onclick="releaseMedia('camera')" style="display:none;" id="btn-release-camera">Stop</button>
+            <button class="btn-clear" onclick="clearStatus('camera')">Clear</button>
+        </div>
+        <span id="status-camera"></span>
+        <div class="result-text" id="result-camera"></div>
+        <video id="preview-camera" autoplay playsinline style="width:100%;max-height:180px;margin-top:8px;border-radius:4px;display:none;"></video>
+    </div>
+
+    <!-- Microphone -->
+    <div class="permission-card" id="card-microphone">
+        <div class="card-header">
+            <div class="icon">&#127908;</div>
+            <div>
+                <h3>Microphone</h3>
+                <span class="api-name">getUserMedia({ audio: true })</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests access to the device microphone.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestMicrophone()">Request Microphone</button>
+            <button class="btn-release" onclick="releaseMedia('microphone')" style="display:none;" id="btn-release-microphone">Stop</button>
+            <button class="btn-clear" onclick="clearStatus('microphone')">Clear</button>
+        </div>
+        <span id="status-microphone"></span>
+        <div class="result-text" id="result-microphone"></div>
+    </div>
+
+    <!-- Camera + Microphone -->
+    <div class="permission-card" id="card-cammic">
+        <div class="card-header">
+            <div class="icon">&#127909;</div>
+            <div>
+                <h3>Camera + Microphone</h3>
+                <span class="api-name">getUserMedia({ video: true, audio: true })</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests simultaneous camera and microphone access.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestCameraMic()">Request Both</button>
+            <button class="btn-release" onclick="releaseMedia('cammic')" style="display:none;" id="btn-release-cammic">Stop</button>
+            <button class="btn-clear" onclick="clearStatus('cammic')">Clear</button>
+        </div>
+        <span id="status-cammic"></span>
+        <div class="result-text" id="result-cammic"></div>
+        <video id="preview-cammic" autoplay playsinline style="width:100%;max-height:180px;margin-top:8px;border-radius:4px;display:none;"></video>
+    </div>
+
+    <!-- Notifications -->
+    <div class="permission-card" id="card-notifications">
+        <div class="card-header">
+            <div class="icon">&#128276;</div>
+            <div>
+                <h3>Notifications</h3>
+                <span class="api-name">Notification.requestPermission()</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests permission to send push notifications.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestNotification()">Request Permission</button>
+            <button class="btn-request" onclick="sendTestNotification()" style="background-color:#28a745;">Send Test</button>
+            <button class="btn-clear" onclick="clearStatus('notifications')">Clear</button>
+        </div>
+        <span id="status-notifications"></span>
+        <div class="result-text" id="result-notifications"></div>
+    </div>
+
+    <!-- Clipboard Read -->
+    <div class="permission-card" id="card-clipboard-read">
+        <div class="card-header">
+            <div class="icon">&#128203;</div>
+            <div>
+                <h3>Clipboard Read</h3>
+                <span class="api-name">navigator.clipboard.readText()</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests permission to read text from the system clipboard.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestClipboardRead()">Read Clipboard</button>
+            <button class="btn-clear" onclick="clearStatus('clipboard-read')">Clear</button>
+        </div>
+        <span id="status-clipboard-read"></span>
+        <div class="result-text" id="result-clipboard-read"></div>
+    </div>
+
+    <!-- Clipboard Write -->
+    <div class="permission-card" id="card-clipboard-write">
+        <div class="card-header">
+            <div class="icon">&#128221;</div>
+            <div>
+                <h3>Clipboard Write</h3>
+                <span class="api-name">navigator.clipboard.writeText()</span>
+            </div>
+        </div>
+        <p class="card-desc">Requests permission to write text to the system clipboard.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="requestClipboardWrite()">Write Clipboard</button>
+            <button class="btn-clear" onclick="clearStatus('clipboard-write')">Clear</button>
+        </div>
+        <span id="status-clipboard-write"></span>
+        <div class="result-text" id="result-clipboard-write"></div>
+    </div>
+
+    <!-- Query Permission Status -->
+    <div class="permission-card" id="card-query">
+        <div class="card-header">
+            <div class="icon">&#128269;</div>
+            <div>
+                <h3>Query All Permissions</h3>
+                <span class="api-name">navigator.permissions.query()</span>
+            </div>
+        </div>
+        <p class="card-desc">Query the current state of all knowable permissions without triggering prompts.</p>
+        <div class="btn-row">
+            <button class="btn-request" onclick="queryAllPermissions()">Query All</button>
+            <button class="btn-clear" onclick="clearStatus('query')">Clear</button>
+        </div>
+        <span id="status-query"></span>
+        <div class="result-text" id="result-query" style="max-height:200px;"></div>
+    </div>
+
+</div>
+
+<footer>
+    <p>Permission testing page for WebView validation</p>
+    <p><small>Use this page to verify that the WebView correctly handles browser permission flows.</small></p>
+</footer>
+
+<script>
+    var activeStreams = {};
+
+    function setStatus(id, type, text) {
+        var el = document.getElementById('status-' + id);
+        el.className = 'status-badge status-' + type;
+        el.textContent = text;
+    }
+
+    function setResult(id, text) {
+        var el = document.getElementById('result-' + id);
+        el.textContent = text;
+        el.classList.add('visible');
+    }
+
+    function clearStatus(id) {
+        var statusEl = document.getElementById('status-' + id);
+        statusEl.className = '';
+        statusEl.textContent = '';
+        var resultEl = document.getElementById('result-' + id);
+        resultEl.classList.remove('visible');
+        resultEl.textContent = '';
+
+        if (id === 'camera') {
+            document.getElementById('preview-camera').style.display = 'none';
+            document.getElementById('btn-release-camera').style.display = 'none';
+        }
+        if (id === 'microphone') {
+            document.getElementById('btn-release-microphone').style.display = 'none';
+        }
+        if (id === 'cammic') {
+            document.getElementById('preview-cammic').style.display = 'none';
+            document.getElementById('btn-release-cammic').style.display = 'none';
+        }
+    }
+
+    function releaseMedia(id) {
+        if (activeStreams[id]) {
+            activeStreams[id].getTracks().forEach(function (track) { track.stop(); });
+            delete activeStreams[id];
+        }
+        if (id === 'camera') {
+            document.getElementById('preview-camera').style.display = 'none';
+            document.getElementById('btn-release-camera').style.display = 'none';
+        }
+        if (id === 'microphone') {
+            document.getElementById('btn-release-microphone').style.display = 'none';
+        }
+        if (id === 'cammic') {
+            document.getElementById('preview-cammic').style.display = 'none';
+            document.getElementById('btn-release-cammic').style.display = 'none';
+        }
+        setStatus(id, 'prompt', 'Released');
+    }
+
+    function handleMedia(constraints, id, previewVideoId) {
+        setStatus(id, 'prompt', 'Requesting...');
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setStatus(id, 'unsupported', 'Not supported');
+            setResult(id, 'getUserMedia API is not available in this browser/context.');
+            return;
+        }
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function (stream) {
+                activeStreams[id] = stream;
+                setStatus(id, 'granted', 'Granted');
+                setResult(id, 'Media stream acquired. Tracks: ' + stream.getTracks().length);
+                var releaseBtn = document.getElementById('btn-release-' + id);
+                if (releaseBtn) releaseBtn.style.display = 'inline-block';
+                if (previewVideoId) {
+                    var video = document.getElementById(previewVideoId);
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                }
+            })
+            .catch(function (err) {
+                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                    setStatus(id, 'denied', 'Denied');
+                    setResult(id, 'Permission denied by user.');
+                } else if (err.name === 'NotFoundError') {
+                    setStatus(id, 'error', 'No device');
+                    setResult(id, 'No matching media device found.');
+                } else if (err.name === 'NotReadableError') {
+                    setStatus(id, 'error', 'In use');
+                    setResult(id, 'Device is already in use by another application.');
+                } else {
+                    setStatus(id, 'error', 'Error');
+                    setResult(id, err.name + ': ' + err.message);
+                }
+            });
+    }
+
+    // Geolocation
+    function requestGeolocation() {
+        setStatus('geolocation', 'prompt', 'Requesting...');
+        if (!navigator.geolocation) {
+            setStatus('geolocation', 'unsupported', 'Not supported');
+            setResult('geolocation', 'Geolocation API is not available.');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                setStatus('geolocation', 'granted', 'Granted');
+                setResult('geolocation', 'Lat: ' + pos.coords.latitude.toFixed(6) + ', Lng: ' + pos.coords.longitude.toFixed(6) + ' (accuracy: ' + pos.coords.accuracy + 'm)');
+            },
+            function (err) {
+                if (err.code === 1) {
+                    setStatus('geolocation', 'denied', 'Denied');
+                    setResult('geolocation', 'Permission denied by user.');
+                } else if (err.code === 2) {
+                    setStatus('geolocation', 'error', 'Unavailable');
+                    setResult('geolocation', 'Position unavailable.');
+                } else if (err.code === 3) {
+                    setStatus('geolocation', 'error', 'Timeout');
+                    setResult('geolocation', 'Request timed out.');
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    // Camera
+    function requestCamera() {
+        handleMedia({ video: true }, 'camera', 'preview-camera');
+    }
+
+    // Microphone
+    function requestMicrophone() {
+        handleMedia({ audio: true }, 'microphone', null);
+    }
+
+    // Camera + Microphone
+    function requestCameraMic() {
+        handleMedia({ video: true, audio: true }, 'cammic', 'preview-cammic');
+    }
+
+    // Notifications
+    function requestNotification() {
+        setStatus('notifications', 'prompt', 'Requesting...');
+        if (!('Notification' in window)) {
+            setStatus('notifications', 'unsupported', 'Not supported');
+            setResult('notifications', 'Notification API is not available.');
+            return;
+        }
+        if (Notification.permission === 'granted') {
+            setStatus('notifications', 'granted', 'Already granted');
+            setResult('notifications', 'Notification permission was already granted.');
+            return;
+        }
+        if (Notification.permission === 'denied') {
+            setStatus('notifications', 'denied', 'Already denied');
+            setResult('notifications', 'Notification permission was previously denied. User must re-enable it in browser settings.');
+            return;
+        }
+        Notification.requestPermission()
+            .then(function (perm) {
+                if (perm === 'granted') {
+                    setStatus('notifications', 'granted', 'Granted');
+                    setResult('notifications', 'Notification permission granted.');
+                } else if (perm === 'denied') {
+                    setStatus('notifications', 'denied', 'Denied');
+                    setResult('notifications', 'Notification permission denied.');
+                } else {
+                    setStatus('notifications', 'prompt', 'Dismissed');
+                    setResult('notifications', 'Permission prompt was dismissed.');
+                }
+            })
+            .catch(function (err) {
+                setStatus('notifications', 'error', 'Error');
+                setResult('notifications', err.message);
+            });
+    }
+
+    function sendTestNotification() {
+        if (!('Notification' in window)) {
+            setStatus('notifications', 'unsupported', 'Not supported');
+            return;
+        }
+        if (Notification.permission !== 'granted') {
+            setStatus('notifications', 'denied', 'Not granted');
+            setResult('notifications', 'Cannot send notification &mdash; permission not granted.');
+            return;
+        }
+        var n = new Notification('Test Notification', {
+            body: 'This is a test notification from the Permission Testing page.',
+            icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23007bff"/><text x="50" y="62" font-size="40" text-anchor="middle" fill="white">&#10003;</text></svg>'
+        });
+        setResult('notifications', 'Test notification sent at ' + new Date().toLocaleTimeString());
+        setTimeout(function () { n.close(); }, 5000);
+    }
+
+    // Clipboard Read
+    function requestClipboardRead() {
+        setStatus('clipboard-read', 'prompt', 'Requesting...');
+        if (!navigator.clipboard || !navigator.clipboard.readText) {
+            setStatus('clipboard-read', 'unsupported', 'Not supported');
+            setResult('clipboard-read', 'Clipboard API is not available in this context.');
+            return;
+        }
+        navigator.clipboard.readText()
+            .then(function (text) {
+                setStatus('clipboard-read', 'granted', 'Read OK');
+                setResult('clipboard-read', 'Clipboard content: "' + text + '"');
+            })
+            .catch(function (err) {
+                if (err.name === 'NotAllowedError') {
+                    setStatus('clipboard-read', 'denied', 'Denied');
+                    setResult('clipboard-read', 'Clipboard read permission denied.');
+                } else {
+                    setStatus('clipboard-read', 'error', 'Error');
+                    setResult('clipboard-read', err.name + ': ' + err.message);
+                }
+            });
+    }
+
+    // Clipboard Write
+    function requestClipboardWrite() {
+        setStatus('clipboard-write', 'prompt', 'Writing...');
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            setStatus('clipboard-write', 'unsupported', 'Not supported');
+            setResult('clipboard-write', 'Clipboard API is not available in this context.');
+            return;
+        }
+        var testText = 'Test clipboard write at ' + new Date().toISOString();
+        navigator.clipboard.writeText(testText)
+            .then(function () {
+                setStatus('clipboard-write', 'granted', 'Write OK');
+                setResult('clipboard-write', 'Written to clipboard: "' + testText + '"');
+            })
+            .catch(function (err) {
+                if (err.name === 'NotAllowedError') {
+                    setStatus('clipboard-write', 'denied', 'Denied');
+                    setResult('clipboard-write', 'Clipboard write permission denied.');
+                } else {
+                    setStatus('clipboard-write', 'error', 'Error');
+                    setResult('clipboard-write', err.name + ': ' + err.message);
+                }
+            });
+    }
+
+    // Query All Permissions
+    function queryAllPermissions() {
+        setStatus('query', 'prompt', 'Querying...');
+        if (!navigator.permissions || !navigator.permissions.query) {
+            setStatus('query', 'unsupported', 'Not supported');
+            setResult('query', 'Permissions API is not available in this context.');
+            return;
+        }
+
+        var permissionNames = [
+            'geolocation',
+            'camera',
+            'microphone',
+            'notifications',
+            'clipboard-read',
+            'clipboard-write',
+            'midi',
+            'push',
+            'accelerometer',
+            'gyroscope',
+            'magnetometer',
+            'background-sync',
+            'persistent-storage',
+            'screen-wake-lock'
+        ];
+
+        var results = [];
+        var pending = permissionNames.length;
+
+        permissionNames.forEach(function (name) {
+            navigator.permissions.query({ name: name })
+                .then(function (status) {
+                    results.push({ name: name, state: status.state });
+                })
+                .catch(function () {
+                    results.push({ name: name, state: 'unknown/error' });
+                })
+                .finally(function () {
+                    pending--;
+                    if (pending === 0) {
+                        results.sort(function (a, b) { return a.name.localeCompare(b.name); });
+                        var text = results.map(function (r) {
+                            return r.name + ': ' + r.state;
+                        }).join('\n');
+
+                        var grantedCount = results.filter(function (r) { return r.state === 'granted'; }).length;
+                        setStatus('query', 'prompt', 'Queried ' + results.length);
+                        setResult('query', text + '\n\n(' + grantedCount + ' granted out of ' + results.length + ')');
+                    }
+                });
+        });
+    }
+</script>
+
+</body>
+</html>

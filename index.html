@@ -3,493 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Scheme Test Page</title>
+    <title>WebView Test Suite</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
-        h1 {
-            color: #333;
+        .container {
+            max-width: 700px;
+            width: 100%;
+        }
+        .hero {
             text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 28px;
+            color: #1a1a2e;
             margin-bottom: 8px;
         }
-        .subtitle {
-            text-align: center;
+        .hero p {
             color: #666;
-            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.5;
         }
-        .section {
-            background-color: white;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .shortcut-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
-        .section h2 {
-            color: #444;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 8px;
-            margin-top: 0;
-            margin-bottom: 12px;
-            cursor: pointer;
-            user-select: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .section h2:hover {
-            opacity: 0.8;
-        }
-        .collapse-icon {
-            font-size: 18px;
-            transition: transform 0.3s ease;
-        }
-        .collapse-icon.collapsed {
-            transform: rotate(-90deg);
-        }
-        .section-content {
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            padding-bottom: 5px;
-        }
-        .section-content.collapsed {
-            max-height: 0 !important;
-            padding-bottom: 0;
-        }
-        .link-container {
+        .shortcut-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 32px 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.15s, box-shadow 0.15s;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-        .link-item {
-            display: flex;
             align-items: center;
-            padding: 8px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 4px solid #007bff;
+            text-align: center;
         }
-        .link-item.payment {
-            border-left-color: #28a745;
+        .shortcut-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
-        .link-item.standard {
-            border-left-color: #007bff;
+        .shortcut-card .icon {
+            font-size: 42px;
+            margin-bottom: 16px;
         }
-        .link-item.non-standard {
-            border-left-color: #ffc107;
+        .shortcut-card h2 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
         }
-        .link-item a {
-            color: #007bff;
-            text-decoration: none;
-            font-weight: 500;
-            margin-right: 10px;
-        }
-        .link-item a:hover {
-            text-decoration: underline;
-        }
-        .link-description {
+        .shortcut-card p {
             color: #666;
-            font-size: 14px;
-            margin-left: 10px;
+            font-size: 13px;
+            line-height: 1.5;
         }
-        .scheme-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            background-color: #e9ecef;
-            border-radius: 3px;
+        .shortcut-card .badge-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-intent {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .badge-perm {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #aaa;
             font-size: 12px;
-            font-family: monospace;
-            margin-right: 10px;
         }
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #2196F3;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-        }
-        .info-box h3 {
-            margin-top: 0;
-            color: #0c5c9c;
-        }
-        code {
-            background-color: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
-        
-        /* Responsive design for smaller screens */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
+        @media (max-width: 600px) {
+            .shortcut-grid {
+                grid-template-columns: 1fr;
             }
-            .section {
-                padding: 12px;
-            }
-            .link-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            .link-description {
-                margin-left: 0 !important;
-            }
-            .subtitle {
-                font-size: 14px;
-            }
-            h1 {
+            .hero h1 {
                 font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <h1>URL Scheme Test Page</h1>
-    <p class="subtitle">Testing various URL schemes and payment intents</p>
-
-    <div class="info-box">
-        <h3>About This Page</h3>
-        <p>This test page demonstrates different URL schemes including:</p>
-        <ul>
-            <li><strong>Standard schemes:</strong> <code>http, https, file, chrome, data, javascript, about, copy</code></li>
-            <li><strong>Payment intents:</strong> UPI payment links that should trigger payment applications</li>
-            <li><strong>Non-standard schemes:</strong> Custom and other protocol handlers</li>
-        </ul>
-    </div>
-
-    <!-- Custom URI Invoker -->
-    <div class="section">
-        <h2 onclick="toggleSection(this)">
-            Custom URI Invoker
-            <span class="collapse-icon">▼</span>
-        </h2>
-        <div class="section-content">
-            <p>Enter any URI below to test custom protocol handlers or deep links:</p>
-            <div style="margin-top: 15px;">
-                <input 
-                    type="text" 
-                    id="customUri" 
-                    placeholder="Enter URI (e.g., upi://pay?pa=test@upi&am=100&cu=INR)" 
-                    style="width: 70%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace;"
-                >
-                <button 
-                    onclick="invokeCustomUri()" 
-                    style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-left: 10px;"
-                >
-                    Invoke URI
-                </button>
-            </div>
-            <div id="uriStatus" style="margin-top: 10px; padding: 10px; border-radius: 4px; display: none;"></div>
+    <div class="container">
+        <div class="hero">
+            <h1>WebView Test Suite</h1>
+            <p>Select a test module below to validate WebView behaviour for intents and permissions.</p>
         </div>
-    </div>
-
-    <!-- Payment Intent Links -->
-    <div class="section">
-        <h2 onclick="toggleSection(this)">
-            Payment Intent Links (UPI)
-            <span class="collapse-icon collapsed">▼</span>
-        </h2>
-        <div class="section-content collapsed">
-            <div class="link-container">
-                <div class="link-item payment">
-                <span class="scheme-badge">upi:</span>
-                <a href="upi://pay?pa=test@upi&pn=Test%20Merchant&am=100&cu=INR">UPI Payment Link - ₹100</a>
-                <span class="link-description">Should trigger UPI app with payment intent for ₹100</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">upi:</span>
-                <a href="upi://pay?pa=merchant@paytm&pn=Sample%20Store&am=50.50&cu=INR&tn=Test%20Transaction">UPI Payment Link - ₹50.50</a>
-                <span class="link-description">Should trigger UPI app with payment intent for ₹50.50</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">upi:</span>
-                <a href="upi://pay?pa=example@okaxis&pn=Example%20Payment&am=250&cu=INR&tn=Order%23123">UPI Payment Link - ₹250</a>
-                <span class="link-description">Should trigger UPI app with payment details</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">gpay:</span>
-                <a href="gpay://upi/pay?am=2000.00&cu=INR&mc=6012&mode=04&pa=sbmbankindialim218056.rzp@rxaxis&pn=SBMBANKINDIALIMITED&tn=FixedDeposit&tr=RuZwxDlrM2HJIR">GPay UPI Payment - ₹2000 (Fixed Deposit)</a>
-                <span class="link-description">Should trigger Google Pay with payment intent for ₹2000</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">upi:</span>
-                <a href="upi://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5.00&cu=INR&tr=TXN12345&tn=Test%20Payment">UPI Payment Link - ₹5.00</a>
-                <span class="link-description">Should trigger UPI app with payment intent for ₹5.00</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">gpay:</span>
-                <a href="gpay://upi/pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR&tr=GPay123">GPay UPI Payment - ₹5</a>
-                <span class="link-description">Should trigger Google Pay with payment intent for ₹5</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">gpay:</span>
-                <a href="gpay://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=10&cu=INR&tn=Order%20Payment">GPay Payment - ₹10</a>
-                <span class="link-description">Should trigger Google Pay with payment intent for ₹10</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">phonepe:</span>
-                <a href="phonepe://upi/pay?pa=testmerchant@upi&pn=Test%20Merchant&am=3&cu=INR&tr=PP123">PhonePe UPI Payment - ₹3</a>
-                <span class="link-description">Should trigger PhonePe with payment intent for ₹3</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">phonepe:</span>
-                <a href="phonepe://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">PhonePe Payment - ₹5</a>
-                <span class="link-description">Should trigger PhonePe with payment intent for ₹5</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">paytmmp:</span>
-                <a href="paytmmp://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=7&cu=INR&tr=PTM123">Paytm Payment - ₹7</a>
-                <span class="link-description">Should trigger Paytm with payment intent for ₹7</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">paytmmp:</span>
-                <a href="paytmmp://upi/pay?pa=testmerchant@upi&pn=Test%20Merchant&am=2&cu=INR">Paytm UPI Payment - ₹2</a>
-                <span class="link-description">Should trigger Paytm with payment intent for ₹2</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">amazonpay:</span>
-                <a href="amazonpay://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=4&cu=INR&tr=AMZ123">Amazon Pay Payment - ₹4</a>
-                <span class="link-description">Should trigger Amazon Pay with payment intent for ₹4</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">bhim:</span>
-                <a href="bhim://upi/pay?pa=testmerchant@upi&pn=Test%20Merchant&am=1&cu=INR&tr=BHIM123">BHIM UPI Payment - ₹1</a>
-                <span class="link-description">Should trigger BHIM with payment intent for ₹1</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">whatsapp:</span>
-                <a href="whatsapp://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=6&cu=INR&tr=WA123">WhatsApp Pay Payment - ₹6</a>
-                <span class="link-description">Should trigger WhatsApp Pay with payment intent for ₹6</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">axisupi:</span>
-                <a href="axisupi://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">Axis UPI Payment - ₹5</a>
-                <span class="link-description">Should trigger Axis UPI with payment intent for ₹5</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">payzapp:</span>
-                <a href="payzapp://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">PayZapp Payment - ₹5</a>
-                <span class="link-description">Should trigger PayZapp with payment intent for ₹5</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">yono:</span>
-                <a href="yono://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">YONO SBI Payment - ₹5</a>
-                <span class="link-description">Should trigger YONO SBI with payment intent for ₹5</span>
-            </div>
-            <div class="link-item payment">
-                <span class="scheme-badge">imobile:</span>
-                <a href="imobile://pay?pa=testmerchant@upi&pn=Test%20Merchant&am=5&cu=INR">iMobile Payment - ₹5</a>
-                <span class="link-description">Should trigger ICICI iMobile with payment intent for ₹5</span>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Standard Schemes (from the specified list) -->
-    <div class="section">
-        <h2 onclick="toggleSection(this)">
-            Standard Schemes (Allowed List)
-            <span class="collapse-icon collapsed">▼</span>
-        </h2>
-        <div class="section-content collapsed">
-            <p>These schemes fall under the standard allowed list: <code>http, https, file, chrome, data, javascript, about, copy</code></p>
-            <div class="link-container">
-                <div class="link-item standard">
-                    <span class="scheme-badge">http:</span>
-                <a href="http://example.com">HTTP Link</a>
-                <span class="link-description">Standard HTTP protocol</span>
+        <div class="shortcut-grid">
+            <a href="intent-testing.html" class="shortcut-card">
+                <div class="icon">&#128279;</div>
+                <h2>Intent Testing</h2>
+                <p>Test URL schemes, payment intents (UPI), standard and non-standard protocol handlers.</p>
+                <div class="badge-row">
+                    <span class="badge badge-intent">UPI</span>
+                    <span class="badge badge-intent">Deep Links</span>
+                    <span class="badge badge-intent">URI Schemes</span>
                 </div>
-                <div class="link-item standard">
-                <span class="scheme-badge">https:</span>
-                <a href="https://www.google.com">HTTPS Link</a>
-                <span class="link-description">Secure HTTPS protocol</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">file:</span>
-                <a href="file:///home/user/document.txt">File Link</a>
-                <span class="link-description">Local file protocol (may not work in browser for security reasons)</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">chrome:</span>
-                <a href="chrome://settings">Chrome Settings</a>
-                <span class="link-description">Chrome internal page (works only in Chrome)</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">data:</span>
-                <a href="data:text/html,<h1>Hello from data URI!</h1>">Data URI</a>
-                <span class="link-description">Data URI with inline HTML</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">javascript:</span>
-                <a href="javascript:alert('Hello from JavaScript!');">JavaScript URI</a>
-                <span class="link-description">JavaScript protocol (triggers alert)</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">about:</span>
-                <a href="about:blank">About Blank</a>
-                <span class="link-description">About page (opens blank page)</span>
-            </div>
-            <div class="link-item standard">
-                <span class="scheme-badge">copy:</span>
-                <a href="copy:text">Copy Scheme</a>
-                <span class="link-description">Copy protocol (may not be widely supported)</span>
-            </div>
-            </div>
+            </a>
+            <a href="permission-testing.html" class="shortcut-card">
+                <div class="icon">&#128274;</div>
+                <h2>Permission Testing</h2>
+                <p>Test browser permission flows: camera, microphone, location, notifications, clipboard and more.</p>
+                <div class="badge-row">
+                    <span class="badge badge-perm">Camera</span>
+                    <span class="badge badge-perm">Location</span>
+                    <span class="badge badge-perm">Notifications</span>
+                </div>
+            </a>
+        </div>
+        <div class="footer">
+            <p>Test pages for validating WebView intent and permission handling.</p>
         </div>
     </div>
-
-    <!-- Non-Standard Schemes -->
-    <div class="section">
-        <h2 onclick="toggleSection(this)">
-            Non-Standard Schemes (Not in Allowed List)
-            <span class="collapse-icon collapsed">▼</span>
-        </h2>
-        <div class="section-content collapsed">
-            <p>These schemes do NOT fall under the standard allowed list</p>
-            <div class="link-container">
-            <div class="link-item non-standard">
-                <span class="scheme-badge">mailto:</span>
-                <a href="mailto:test@example.com">Email Link</a>
-                <span class="link-description">Mail protocol (opens email client)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">tel:</span>
-                <a href="tel:+1234567890">Phone Link</a>
-                <span class="link-description">Telephone protocol (triggers dialer on mobile)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">sms:</span>
-                <a href="sms:+1234567890">SMS Link</a>
-                <span class="link-description">SMS protocol (opens messaging app)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">ftp:</span>
-                <a href="ftp://ftp.example.com">FTP Link</a>
-                <span class="link-description">File Transfer Protocol</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">whatsapp:</span>
-                <a href="whatsapp://send?text=Hello">WhatsApp Link</a>
-                <span class="link-description">WhatsApp protocol (opens WhatsApp if installed)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">slack:</span>
-                <a href="slack://open">Slack Link</a>
-                <span class="link-description">Slack protocol (opens Slack if installed)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">custom:</span>
-                <a href="custom://myapp/action">Custom Scheme</a>
-                <span class="link-description">Custom application protocol</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">intent:</span>
-                <a href="intent://scan/#Intent;scheme=zxing;package=com.google.zxing.client.android;end">Android Intent</a>
-                <span class="link-description">Android Intent URI (works only on Android)</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">market:</span>
-                <a href="market://details?id=com.example.app">Play Store Link</a>
-                <span class="link-description">Android Market/Play Store protocol</span>
-            </div>
-            <div class="link-item non-standard">
-                <span class="scheme-badge">tg:</span>
-                <a href="tg://msg?to=@username">Telegram Link</a>
-                <span class="link-description">Telegram protocol (opens Telegram if installed)</span>
-            </div>
-            </div>
-        </div>
-    </div>
-
-    <footer style="text-align: center; padding: 20px; color: #666; margin-top: 30px;">
-        <p>Test page for URL scheme validation and payment intent handling</p>
-        <p><small>Created for testing purposes - Click links to test behavior on different platforms</small></p>
-    </footer>
-
-    <script>
-        function invokeCustomUri() {
-            const uriInput = document.getElementById('customUri');
-            const statusDiv = document.getElementById('uriStatus');
-            const uri = uriInput.value.trim();
-            
-            if (!uri) {
-                statusDiv.style.display = 'block';
-                statusDiv.style.backgroundColor = '#fff3cd';
-                statusDiv.style.borderLeft = '4px solid #ffc107';
-                statusDiv.style.color = '#856404';
-                statusDiv.textContent = '⚠️ Please enter a URI';
-                return;
-            }
-            
-            try {
-                // Create a temporary link and click it
-                const tempLink = document.createElement('a');
-                tempLink.href = uri;
-                tempLink.style.display = 'none';
-                document.body.appendChild(tempLink);
-                tempLink.click();
-                document.body.removeChild(tempLink);
-                
-                statusDiv.style.display = 'block';
-                statusDiv.style.backgroundColor = '#d4edda';
-                statusDiv.style.borderLeft = '4px solid #28a745';
-                statusDiv.style.color = '#155724';
-                statusDiv.textContent = '✓ URI invoked: ' + uri;
-                
-                // Hide status after 3 seconds
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 3000);
-            } catch (error) {
-                statusDiv.style.display = 'block';
-                statusDiv.style.backgroundColor = '#f8d7da';
-                statusDiv.style.borderLeft = '4px solid #dc3545';
-                statusDiv.style.color = '#721c24';
-                statusDiv.textContent = '✗ Error invoking URI: ' + error.message;
-            }
-        }
-        
-        // Allow Enter key to invoke URI
-        document.getElementById('customUri').addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                invokeCustomUri();
-            }
-        });
-        
-        // Toggle section collapse/expand
-        function toggleSection(header) {
-            const content = header.nextElementSibling;
-            const icon = header.querySelector('.collapse-icon');
-            
-            if (content.classList.contains('collapsed')) {
-                // Expand
-                content.classList.remove('collapsed');
-                // Add buffer to prevent clipping
-                content.style.maxHeight = (content.scrollHeight + 20) + 'px';
-                icon.classList.remove('collapsed');
-            } else {
-                // Collapse
-                content.classList.add('collapsed');
-                content.style.maxHeight = '0';
-                icon.classList.add('collapsed');
-            }
-        }
-        
-        // Initialize sections on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const sections = document.querySelectorAll('.section-content');
-            sections.forEach(function(section) {
-                if (!section.classList.contains('collapsed')) {
-                    // Set max-height for expanded sections with buffer
-                    section.style.maxHeight = (section.scrollHeight + 20) + 'px';
-                }
-            });
-        });
-    </script>
 </body>
 </html>
